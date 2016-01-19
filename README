@@ -1,0 +1,2 @@
+A Smart Fuzzer Tool Suite demo designed to use graph analysis techniques to predict vulnerabilities in a program for fuzzing.
+The demo currently only supports MIPS.
