@@ -18,9 +18,9 @@ typedef enum
     IL_SLL,	//Bitwise left shift
     IL_SRL,	//Bitwise right shift
     IL_B,	//Branch (relative to PC)
-    IL_NLT,	//Execute next instruction if operand 0 is less than operand 1, store the result in the third operand if present
-    IL_NLE,	//Execute next instruction if operand 0 is less than or equal to operand 1, store the result in the third operand if present
-    IL_NEQ,	//Execute next instruction if the two operands are equal, store the result in the third operand if present
+    IL_NLT,	//Execute chain instruction if operand 0 is less than operand 1, store the result in the third operand if present
+    IL_NLE,	//Execute chain instruction if operand 0 is less than or equal to operand 1, store the result in the third operand if present
+    IL_NEQ,	//Execute chain instruction if the two operands are equal, store the result in the third operand if present
     IL_J	//Jump (global)
 } IL_Instruction;
 
@@ -41,6 +41,7 @@ typedef struct
 {
     uint64_t value;
     IL_OperandType type;
+    uint32_t bitWidth;
 } IL_Operand;
 
 typedef struct IL_OperationInfo
@@ -49,7 +50,6 @@ typedef struct IL_OperationInfo
     IL_Operand *operands;
     uint32_t operandCount;
     IL_Instruction instruction;
-    uint32_t operandBitWidth;
 
     struct IL_OperationInfo *chainNext;	//Allows for translation to create more than one IL instruction, these will be expanded into the final chain
 } IL_OperationInfo;

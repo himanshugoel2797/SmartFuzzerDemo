@@ -16,10 +16,11 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
             operands[1].value = src->instructionData.r_inst.rt;
             operands[2].value = src->instructionData.r_inst.rd;
 
+	    operands[0].bitWidth = operands[1].bitWidth = operands[2].bitWidth = 32;
+
             operands[0].type = operands[1].type = operands[2].type = IL_Register;
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
             dst->chainNext = NULL;
 
             switch(src->instructionData.r_inst.funct)
@@ -61,6 +62,7 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
                     dst->chainNext->operands = malloc(sizeof(IL_Operand));
                     dst->chainNext->operands[0].value = dst->operands[0].value;
                     dst->chainNext->operands[0].type = IL_Register;
+		    dst->chainNext->operands[0].bitWidth = 32;
                     dst->chainNext->sign = IL_Unsigned;
                     dst->chainNext->instruction = IL_J;
 
@@ -139,18 +141,20 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
                     IL_Operand *chainOperands = malloc(sizeof(IL_Operand) * 3);
                     chainOperands[0].value = dst->operands[2].value;
                     chainOperands[0].type = dst->operands[2].type;
+		    chainOperands[0].bitWidth = dst->operands[2].bitWidth;
 
                     chainOperands[1].value = 0;
                     chainOperands[1].type = IL_Immediate;
+		    chainOperands[1].bitWidth = 32;
 
                     chainOperands[2].value = dst->operands[2].value;
                     chainOperands[2].type = dst->operands[2].type;
+		    chainOperands[2].bitWidth = dst->operands[2].bitWidth;
 
                     dst->chainNext->sign = IL_Unsigned;
                     dst->chainNext->instruction = IL_NOT;
                     dst->chainNext->operands = chainOperands;
                     dst->chainNext->operandCount = 3;
-                    dst->chainNext->operandBitWidth = dst->operandBitWidth;
                 }
                 break;
                 case MIPS_FUNCT_XOR:
@@ -183,6 +187,7 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
                     dst->instruction = IL_SLL;
                     dst->operands[0].type = IL_Immediate;
                     dst->operands[0].value = src->instructionData.r_inst.shamt;
+		    dst->operands[0].bitWidth = 5;
                 }
                 break;
                 case MIPS_FUNCT_SLLV:
@@ -197,6 +202,7 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
                     dst->instruction = IL_SRL;
                     dst->operands[0].type = IL_Immediate;
                     dst->operands[0].value = src->instructionData.r_inst.shamt;
+		    dst->operands[0].bitWidth = 5;
                 }
                 break;
                 case MIPS_FUNCT_SRLV:
@@ -211,14 +217,13 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
                     dst->instruction = IL_SRL;
                     dst->operands[0].type = IL_Immediate;
                     dst->operands[0].value = src->instructionData.r_inst.shamt;
+		    dst->operands[0].bitWidth = 5;
                 }
                 break;
                 case MIPS_FUNCT_SRAV:
                 {
                     dst->sign = IL_Signed;
                     dst->instruction = IL_SRL;
-                    dst->operands[0].type = IL_Immediate;
-                    dst->operands[0].value = src->instructionData.r_inst.shamt;
                 }
                 break;
                 case MIPS_FUNCT_SUB:
@@ -249,9 +254,11 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
             operands[0].type = operands[2].type = IL_Register;
 	    operands[1].type = IL_Immediate;
 
+	    operands[0].bitWidth = operands[2].bitWidth = 32;
+	    operands[1].bitWidth = 16;
+
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -267,9 +274,11 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
             operands[0].type = operands[2].type = IL_Register;
 	    operands[1].type = IL_Immediate;
 
+	    operands[0].bitWidth = operands[2].bitWidth = 32;
+	    operands[1].bitWidth = 16;
+
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Unsigned;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -285,9 +294,11 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
             operands[0].type = operands[2].type = IL_Register;
 	    operands[1].type = IL_Immediate;
 
+	    operands[0].bitWidth = operands[2].bitWidth = 32;
+	    operands[1].bitWidth = 16;
+
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Unsigned;
 	    dst->instruction = IL_AND;
             dst->chainNext = NULL;
@@ -295,20 +306,27 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
             break;
         case MIPS_OP_BEQ:
         {
-            IL_Operand *operands = malloc(sizeof(IL_Operand) * 3);
+            IL_Operand *operands = malloc(sizeof(IL_Operand) * 2);
             operands[0].value = src->instructionData.i_inst.rs;
-            operands[1].value = src->instructionData.i_inst.imm;
-            operands[2].value = src->instructionData.i_inst.rt;
+            operands[1].value = src->instructionData.i_inst.rt;
 
-            operands[0].type = operands[2].type = IL_Register;
-	    operands[1].type = IL_Immediate;
+            operands[0].type = IL_Register;
+	    operands[1].type = IL_Register;
+
+	    operands[0].bitWidth = 32;
+	    operands[1].bitWidth = 32;
 
             dst->operands = operands;
-            dst->operandCount = 3;
-            dst->operandBitWidth = 32;
-	    dst->sign = IL_Signed;
-	    dst->instruction = IL_ADD;
-            dst->chainNext = NULL;
+            dst->operandCount = 2;
+	    dst->sign = IL_Unsigned;
+	    dst->instruction = IL_NEQ;
+            dst->chainNext = malloc(sizeof(IL_OperationInfo));
+	    dst->chainNext->operands = malloc(sizeof(IL_Operand));
+	    dst->chainNext->operands[0].value = src->instructionData.i_inst.imm << 2;
+	    dst->chainNext->operands[0].type = IL_Immediate;
+	    dst->chainNext->operands[0].bitWidth = 16;
+	    dst->chainNext->operandCount = 1;
+	    dst->chainNext->sign = IL_Signed;
         }
             break;
         case MIPS_OP_BNE:
@@ -323,7 +341,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -341,7 +358,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -359,7 +375,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -381,7 +396,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -399,7 +413,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -417,7 +430,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -435,7 +447,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -453,7 +464,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -471,7 +481,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -489,7 +498,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -507,7 +515,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -525,7 +532,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Unsigned;
 	    dst->instruction = IL_XOR;
             dst->chainNext = NULL;
@@ -543,7 +549,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Unsigned;
 	    dst->instruction = IL_OR;
             dst->chainNext = NULL;
@@ -561,7 +566,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -579,7 +583,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -597,7 +600,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -615,7 +617,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
@@ -633,7 +634,6 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
 
             dst->operands = operands;
             dst->operandCount = 3;
-            dst->operandBitWidth = 32;
 	    dst->sign = IL_Signed;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
