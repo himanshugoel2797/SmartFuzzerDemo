@@ -138,23 +138,19 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
                     dst->chainNext = malloc(sizeof(IL_OperationInfo));
 
                     //Create the NOT instruction
-                    IL_Operand *chainOperands = malloc(sizeof(IL_Operand) * 3);
+                    IL_Operand *chainOperands = malloc(sizeof(IL_Operand) * 2);
                     chainOperands[0].value = dst->operands[2].value;
                     chainOperands[0].type = dst->operands[2].type;
 		    chainOperands[0].bitWidth = dst->operands[2].bitWidth;
 
-                    chainOperands[1].value = 0;
-                    chainOperands[1].type = IL_Immediate;
-		    chainOperands[1].bitWidth = 32;
-
-                    chainOperands[2].value = dst->operands[2].value;
-                    chainOperands[2].type = dst->operands[2].type;
-		    chainOperands[2].bitWidth = dst->operands[2].bitWidth;
+                    chainOperands[1].value = dst->operands[2].value;
+                    chainOperands[1].type = dst->operands[2].type;
+		    chainOperands[1].bitWidth = dst->operands[2].bitWidth;
 
                     dst->chainNext->sign = IL_Unsigned;
                     dst->chainNext->instruction = IL_NOT;
                     dst->chainNext->operands = chainOperands;
-                    dst->chainNext->operandCount = 3;
+                    dst->chainNext->operandCount = 2;
                 }
                 break;
                 case MIPS_FUNCT_XOR:
@@ -320,70 +316,109 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
             dst->operandCount = 2;
 	    dst->sign = IL_Unsigned;
 	    dst->instruction = IL_NEQ;
+
             dst->chainNext = malloc(sizeof(IL_OperationInfo));
 	    dst->chainNext->operands = malloc(sizeof(IL_Operand));
 	    dst->chainNext->operands[0].value = src->instructionData.i_inst.imm << 2;
 	    dst->chainNext->operands[0].type = IL_Immediate;
-	    dst->chainNext->operands[0].bitWidth = 16;
+	    dst->chainNext->operands[0].bitWidth = 18;
 	    dst->chainNext->operandCount = 1;
 	    dst->chainNext->sign = IL_Signed;
+	    dst->chainNext->instruction = IL_B;
         }
             break;
         case MIPS_OP_BNE:
         {
-            IL_Operand *operands = malloc(sizeof(IL_Operand) * 3);
+            IL_Operand *operands = malloc(sizeof(IL_Operand) * 2);
             operands[0].value = src->instructionData.i_inst.rs;
-            operands[1].value = src->instructionData.i_inst.imm;
-            operands[2].value = src->instructionData.i_inst.rt;
+            operands[1].value = src->instructionData.i_inst.rt;
 
-            operands[0].type = operands[2].type = IL_Register;
-	    operands[1].type = IL_Immediate;
+            operands[0].type = IL_Register;
+	    operands[1].type = IL_Register;
+
+	    operands[0].bitWidth = 32;
+	    operands[1].bitWidth = 32;
 
             dst->operands = operands;
-            dst->operandCount = 3;
-	    dst->sign = IL_Signed;
-	    dst->instruction = IL_ADD;
-            dst->chainNext = NULL;
+            dst->operandCount = 2;
+	    dst->sign = IL_Unsigned;
+	    dst->instruction = IL_NNE;
+
+            IL_OperationInfo *c0 = malloc(sizeof(IL_OperationInfo));
+	    c0->operands = malloc(sizeof(IL_Operand));
+	    c0->operands[0].value = src->instructionData.i_inst.imm << 2;
+	    c0->operands[0].type = IL_Immediate;
+	    c0->operands[0].bitWidth = 18;
+	    c0->operandCount = 1;
+	    c0->sign = IL_Signed;
+	    c0->instruction = IL_B;
+
+	    dst->chainNext = c0;
         }
             break;
         case MIPS_OP_BLEZ:
         {
-            IL_Operand *operands = malloc(sizeof(IL_Operand) * 3);
+            IL_Operand *operands = malloc(sizeof(IL_Operand) * 2);
             operands[0].value = src->instructionData.i_inst.rs;
-            operands[1].value = src->instructionData.i_inst.imm;
-            operands[2].value = src->instructionData.i_inst.rt;
+            operands[1].value = 0;
 
-            operands[0].type = operands[2].type = IL_Register;
+            operands[0].type = IL_Register;
 	    operands[1].type = IL_Immediate;
 
+	    operands[0].bitWidth = 32;
+	    operands[1].bitWidth = 32;
+
             dst->operands = operands;
-            dst->operandCount = 3;
-	    dst->sign = IL_Signed;
-	    dst->instruction = IL_ADD;
-            dst->chainNext = NULL;
+            dst->operandCount = 2;
+	    dst->sign = IL_Unsigned;
+	    dst->instruction = IL_NLE;
+
+            IL_OperationInfo *c0 = malloc(sizeof(IL_OperationInfo));
+	    c0->operands = malloc(sizeof(IL_Operand));
+	    c0->operands[0].value = src->instructionData.i_inst.imm << 2;
+	    c0->operands[0].type = IL_Immediate;
+	    c0->operands[0].bitWidth = 18;
+	    c0->operandCount = 1;
+	    c0->sign = IL_Signed;
+	    c0->instruction = IL_B;
+
+	    dst->chainNext = c0;
         }
             break;
         case MIPS_OP_BGTZ:
         {
-            IL_Operand *operands = malloc(sizeof(IL_Operand) * 3);
-            operands[0].value = src->instructionData.i_inst.rs;
-            operands[1].value = src->instructionData.i_inst.imm;
-            operands[2].value = src->instructionData.i_inst.rt;
+            IL_Operand *operands = malloc(sizeof(IL_Operand) * 2);
+            operands[0].value = 0;
+            operands[1].value = src->instructionData.i_inst.rs;
 
-            operands[0].type = operands[2].type = IL_Register;
-	    operands[1].type = IL_Immediate;
+            operands[0].type = IL_Immediate;
+	    operands[1].type = IL_Register;
+
+	    operands[0].bitWidth = 32;
+	    operands[1].bitWidth = 32;
 
             dst->operands = operands;
-            dst->operandCount = 3;
-	    dst->sign = IL_Signed;
-	    dst->instruction = IL_ADD;
-            dst->chainNext = NULL;
+            dst->operandCount = 2;
+	    dst->sign = IL_Unsigned;
+	    dst->instruction = IL_NLT;
+
+            IL_OperationInfo *c0 = malloc(sizeof(IL_OperationInfo));
+	    c0->operands = malloc(sizeof(IL_Operand));
+	    c0->operands[0].value = src->instructionData.i_inst.imm << 2;
+	    c0->operands[0].type = IL_Immediate;
+	    c0->operands[0].bitWidth = 18;
+	    c0->operandCount = 1;
+	    c0->sign = IL_Signed;
+	    c0->instruction = IL_B;
+
+	    dst->chainNext = c0;
         }
             break;
         case MIPS_OP_J:
             break;
         case MIPS_OP_JAL:
             break;
+	  //Continue here
         case MIPS_OP_LLO:
         {
             IL_Operand *operands = malloc(sizeof(IL_Operand) * 3);
