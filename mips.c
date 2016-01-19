@@ -418,20 +418,22 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
             break;
         case MIPS_OP_JAL:
             break;
-	  //Continue here
         case MIPS_OP_LLO:
         {
             IL_Operand *operands = malloc(sizeof(IL_Operand) * 3);
-            operands[0].value = src->instructionData.i_inst.rs;
+            operands[0].value = 0;
             operands[1].value = src->instructionData.i_inst.imm;
             operands[2].value = src->instructionData.i_inst.rt;
 
-            operands[0].type = operands[2].type = IL_Register;
-	    operands[1].type = IL_Immediate;
+            operands[2].type = IL_Register;
+	    operands[0].type = operands[1].type = IL_Immediate;
+
+	    operands[0].bitWidth = operands[1].bitWidth = 32;
+	    operands[2].bitWidth = 32;
 
             dst->operands = operands;
             dst->operandCount = 3;
-	    dst->sign = IL_Signed;
+	    dst->sign = IL_Unsigned;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
         }
@@ -439,20 +441,24 @@ MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
         case MIPS_OP_LHI:
         {
             IL_Operand *operands = malloc(sizeof(IL_Operand) * 3);
-            operands[0].value = src->instructionData.i_inst.rs;
-            operands[1].value = src->instructionData.i_inst.imm;
+            operands[0].value = 0;
+            operands[1].value = src->instructionData.i_inst.imm << 16;
             operands[2].value = src->instructionData.i_inst.rt;
 
-            operands[0].type = operands[2].type = IL_Register;
-	    operands[1].type = IL_Immediate;
+            operands[2].type = IL_Register;
+	    operands[0].type = operands[1].type = IL_Immediate;
+
+	    operands[0].bitWidth = operands[1].bitWidth = 32;
+	    operands[2].bitWidth = 32;
 
             dst->operands = operands;
             dst->operandCount = 3;
-	    dst->sign = IL_Signed;
+	    dst->sign = IL_Unsigned;
 	    dst->instruction = IL_ADD;
             dst->chainNext = NULL;
         }
             break;
+	  //Continue here
         case MIPS_OP_LB:
         {
             IL_Operand *operands = malloc(sizeof(IL_Operand) * 3);
