@@ -18,9 +18,9 @@ typedef enum
     IL_SLL,	//Bitwise left shift
     IL_SRL,	//Bitwise right shift
     IL_B,	//Branch (relative to PC)
-    IL_NLT,  //Execute next instruction if operand 0 is less than operand 1
-    IL_NLE,  //Execute next instruction if operand 0 is less than or equal to operand 1
-    IL_NEQ,  //Execute next instruction if the two operands are equal
+    IL_NLT,	//Execute next instruction if operand 0 is less than operand 1, store the result in the third operand if present
+    IL_NLE,	//Execute next instruction if operand 0 is less than or equal to operand 1, store the result in the third operand if present
+    IL_NEQ,	//Execute next instruction if the two operands are equal, store the result in the third operand if present
     IL_J	//Jump (global)
 } IL_Instruction;
 
