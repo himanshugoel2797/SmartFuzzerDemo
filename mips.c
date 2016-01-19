@@ -1,5 +1,74 @@
 #include "mips.h"
 #include "stdlib.h"
+#include "llist.h"
+
+MIPS_INSTRUCTION*
+MIPS_GenerateBranch(MIPS_OPCODES ops,
+		    MIPS_REGISTERS s,
+		    MIPS_REGISTERS t,
+		    int b_offset)
+{
+  MIPS_INSTRUCTION *inst = malloc(sizeof(MIPS_INSTRUCTION));
+  inst->instructionData.i_inst.imm = (b_offset >> 2) & 0xFFFF;
+  inst->instructionData.i_inst.rt = t;
+  inst->instructionData.i_inst.rs = s;
+  inst->instructionData.i_inst.opcode = ops;
+
+  return inst;
+}
+
+LListEntry*
+MIPS_PreprocessInstructionStream(MIPS_INSTRUCTION *src,
+				 int entryCount)
+{
+  //Rearrange delay slots, translate 'likely' instructions into singular instructions that don't depend on the next instruction
+
+  LListEntry *list = malloc(sizeof(LListEntry));
+  list->prev = NULL;
+  list->next = NULL;
+  list->value = NULL;
+
+  for(int i = 0; i < entryCount; i++)
+    {
+
+      switch(src[i].instructionData.j_inst.opcode)
+	{
+	case MIPS_OP_BEQL:
+	  //Generate a BNE instruction to skip the delay slot
+	  list->value = MIPS_GenerateBranch(MIPS_OP_BNE,
+					    src[i].instructionData.i_inst.rs,
+					    src[i].instructionData.i_inst.rt,
+					    +4);
+	  //Insert the delay slot instruction
+	  list->next = malloc(sizeof(LListEntry));
+	  list->next->prev = list;
+	  list = list->next;
+	  list->value = src[i + 1];
+
+	  break;
+	  //Swap delay slot instruction
+	case MIPS_OP_BEQ:
+	case MIPS_OP_BNE:
+	case MIPS_OP_BLEZ:
+	case MIPS_OP_BGTZ:]
+	  if(i < entryCount - 1)
+	    {
+	      list->value = src[i + 1];
+	      list->next = malloc(sizeof(LListEntry));
+	      list->next->prev = list;
+	      list = list->next;
+	      list->value = src[i];
+	    }
+	  break;
+	}
+
+        list->next = malloc(sizeof (LListEntry));
+	list->next->prev = list;
+        list = list->next;
+    }
+
+}
+
 
 int
 MIPS_TranslateInstruction(MIPS_INSTRUCTION *src,
